@@ -1,218 +1,209 @@
-// @ts-nocheck
 "use client";
 
-import { useRef, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, OrbitControls } from "@react-three/drei";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 interface TruckCanvasProps {
   scrollProgress: number; // 0 to 1
 }
 
-function ProceduralJCBHeavyTruck({ scrollProgress }: { scrollProgress: number }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const wheelsRef = useRef<THREE.Group>(null);
-
-  useFrame((state, delta) => {
-    if (groupRef.current) {
-      // Rotate 3D truck based on scroll progress (lodisna.com 360 degree rotation)
-      const targetRotationY = scrollProgress * Math.PI * 2.5;
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotationY, 0.08);
-
-      // Subtle float motion
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.08;
-      groupRef.current.position.z = Math.sin(state.clock.elapsedTime * 1.5) * 0.1;
-    }
-
-    if (wheelsRef.current) {
-      // Spin wheels
-      wheelsRef.current.children.forEach((wheel) => {
-        wheel.rotation.x += delta * 6;
-      });
-    }
-  });
-
-  return (
-    <group ref={groupRef} position={[0, -0.5, 0]} scale={1.2}>
-      {/* Chassis Base */}
-      <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
-        <boxGeometry args={[2.2, 0.4, 4.2]} />
-        <meshStandardMaterial color="#111111" roughness={0.3} metalness={0.8} />
-      </mesh>
-
-      {/* Main Body - JCB Yellow */}
-      <mesh position={[0, 1.1, -0.2]} castShadow receiveShadow>
-        <boxGeometry args={[2.1, 1.0, 2.8]} />
-        <meshStandardMaterial color="#FFCC00" roughness={0.2} metalness={0.5} />
-      </mesh>
-
-      {/* Engine Hood Accent */}
-      <mesh position={[0, 1.0, 1.3]} castShadow receiveShadow>
-        <boxGeometry args={[1.9, 0.7, 1.2]} />
-        <meshStandardMaterial color="#E6B800" roughness={0.3} metalness={0.6} />
-      </mesh>
-
-      {/* Driver Cab */}
-      <mesh position={[0, 1.9, 0.4]} castShadow receiveShadow>
-        <boxGeometry args={[1.8, 0.9, 1.4]} />
-        <meshStandardMaterial color="#222222" roughness={0.1} metalness={0.9} />
-      </mesh>
-
-      {/* Cab Glass Window */}
-      <mesh position={[0, 1.95, 1.1]}>
-        <boxGeometry args={[1.6, 0.65, 0.1]} />
-        <meshPhysicalMaterial
-          color="#5BA8D9"
-          transmission={0.8}
-          opacity={0.7}
-          transparent
-          roughness={0.1}
-        />
-      </mesh>
-
-      {/* Headlights */}
-      <mesh position={[-0.7, 0.9, 1.95]}>
-        <boxGeometry args={[0.3, 0.2, 0.1]} />
-        <meshStandardMaterial color="#FFFFFF" emissive="#FFD633" emissiveIntensity={3} />
-      </mesh>
-      <mesh position={[0.7, 0.9, 1.95]}>
-        <boxGeometry args={[0.3, 0.2, 0.1]} />
-        <meshStandardMaterial color="#FFFFFF" emissive="#FFD633" emissiveIntensity={3} />
-      </mesh>
-
-      {/* Headlight Beams */}
-      <spotLight
-        position={[0, 1.0, 2.0]}
-        target-position={[0, 0, 8]}
-        angle={0.5}
-        penumbra={0.5}
-        intensity={8}
-        color="#FFCC00"
-      />
-
-      {/* Heavy Machinery Wheels */}
-      <group ref={wheelsRef}>
-        {/* Front Left */}
-        <mesh position={[-1.15, 0.3, 1.3]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.45, 0.45, 0.4, 32]} />
-          <meshStandardMaterial color="#1a1a1a" roughness={0.8} />
-        </mesh>
-        {/* Front Right */}
-        <mesh position={[1.15, 0.3, 1.3]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.45, 0.45, 0.4, 32]} />
-          <meshStandardMaterial color="#1a1a1a" roughness={0.8} />
-        </mesh>
-        {/* Rear Left 1 */}
-        <mesh position={[-1.15, 0.3, -0.6]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.5, 0.5, 0.4, 32]} />
-          <meshStandardMaterial color="#1a1a1a" roughness={0.8} />
-        </mesh>
-        {/* Rear Right 1 */}
-        <mesh position={[1.15, 0.3, -0.6]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.5, 0.5, 0.4, 32]} />
-          <meshStandardMaterial color="#1a1a1a" roughness={0.8} />
-        </mesh>
-        {/* Rear Left 2 */}
-        <mesh position={[-1.15, 0.3, -1.6]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.5, 0.5, 0.4, 32]} />
-          <meshStandardMaterial color="#1a1a1a" roughness={0.8} />
-        </mesh>
-        {/* Rear Right 2 */}
-        <mesh position={[1.15, 0.3, -1.6]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.5, 0.5, 0.4, 32]} />
-          <meshStandardMaterial color="#1a1a1a" roughness={0.8} />
-        </mesh>
-      </group>
-
-      {/* GPS Antenna Dome with pulsing light */}
-      <mesh position={[0, 2.4, 0.2]}>
-        <cylinderGeometry args={[0.15, 0.15, 0.1, 16]} />
-        <meshStandardMaterial color="#22C55E" emissive="#22C55E" emissiveIntensity={2} />
-      </mesh>
-    </group>
-  );
-}
-
-function RoadEnvironment({ scrollProgress }: { scrollProgress: number }) {
-  const roadRef = useRef<THREE.Mesh>(null);
-
-  useFrame((_state, delta) => {
-    if (roadRef.current && roadRef.current.material instanceof THREE.MeshStandardMaterial) {
-      // Move road texture to simulate driving forward
-      roadRef.current.material.map?.offset.set(0, (scrollProgress * 20) % 1);
-    }
-  });
-
-  return (
-    <group>
-      {/* Ground Plane */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.6, 0]} receiveShadow>
-        <planeGeometry args={[60, 60]} />
-        <meshStandardMaterial color="#111111" roughness={0.9} />
-      </mesh>
-
-      {/* Highway Road Strip */}
-      <mesh ref={roadRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.58, 0]} receiveShadow>
-        <planeGeometry args={[8, 60]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.5} />
-      </mesh>
-
-      {/* Yellow Center Road Lines */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.57, 0]}>
-        <planeGeometry args={[0.3, 60]} />
-        <meshStandardMaterial color="#FFCC00" emissive="#FFCC00" emissiveIntensity={0.5} />
-      </mesh>
-
-      {/* GPS Towers along the road */}
-      <group position={[-5, 0, -10]}>
-        <mesh position={[0, 3, 0]}>
-          <cylinderGeometry args={[0.1, 0.3, 6, 8]} />
-          <meshStandardMaterial color="#444444" metalness={0.8} />
-        </mesh>
-        <mesh position={[0, 6, 0]}>
-          <sphereGeometry args={[0.4, 16, 16]} />
-          <meshStandardMaterial color="#22C55E" emissive="#22C55E" emissiveIntensity={2} />
-        </mesh>
-      </group>
-
-      <group position={[5, 0, 5]}>
-        <mesh position={[0, 3, 0]}>
-          <cylinderGeometry args={[0.1, 0.3, 6, 8]} />
-          <meshStandardMaterial color="#444444" metalness={0.8} />
-        </mesh>
-        <mesh position={[0, 6, 0]}>
-          <sphereGeometry args={[0.4, 16, 16]} />
-          <meshStandardMaterial color="#22C55E" emissive="#22C55E" emissiveIntensity={2} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
 export default function TruckJourneyCanvas({ scrollProgress }: TruckCanvasProps) {
-  return (
-    <div className="w-full h-full min-h-[400px] relative">
-      <Canvas
-        camera={{ position: [0, 4, 8], fov: 45 }}
-        shadows
-        style={{ background: "transparent" }}
-      >
-        <ambientLight intensity={0.6} />
-        <directionalLight
-          position={[10, 15, 10]}
-          intensity={1.5}
-          castShadow
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
-        />
-        <pointLight position={[-10, 10, -10]} intensity={0.5} color="#FFCC00" />
+  const mountRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef(scrollProgress);
 
-        <ProceduralJCBHeavyTruck scrollProgress={scrollProgress} />
-        <RoadEnvironment scrollProgress={scrollProgress} />
+  useEffect(() => {
+    scrollRef.current = scrollProgress;
+  }, [scrollProgress]);
 
-        <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 2.2} />
-      </Canvas>
-    </div>
-  );
+  useEffect(() => {
+    const container = mountRef.current;
+    if (!container) return;
+
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || 450;
+
+    // 1. Scene setup
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x111111, 0.03);
+
+    // 2. Camera setup
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.set(0, 4, 9);
+    camera.lookAt(0, 0, 0);
+
+    // 3. Renderer setup
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // 4. Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffcc00, 1.8);
+    dirLight.position.set(10, 15, 10);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+
+    const spotLight = new THREE.SpotLight(0xffcc00, 3);
+    spotLight.position.set(0, 5, 5);
+    spotLight.angle = 0.6;
+    scene.add(spotLight);
+
+    // 5. Procedural 3D Truck Group
+    const truckGroup = new THREE.Group();
+
+    // Chassis Base
+    const chassisGeo = new THREE.BoxGeometry(2.4, 0.4, 4.4);
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3, metalness: 0.8 });
+    const chassis = new THREE.Mesh(chassisGeo, darkMat);
+    chassis.position.y = 0.4;
+    chassis.castShadow = true;
+    truckGroup.add(chassis);
+
+    // Main Body — JCB Yellow
+    const bodyGeo = new THREE.BoxGeometry(2.2, 1.1, 2.9);
+    const jcbYellowMat = new THREE.MeshStandardMaterial({ color: 0xffcc00, roughness: 0.2, metalness: 0.4 });
+    const body = new THREE.Mesh(bodyGeo, jcbYellowMat);
+    body.position.set(0, 1.1, -0.2);
+    body.castShadow = true;
+    truckGroup.add(body);
+
+    // Hood Front Accent
+    const hoodGeo = new THREE.BoxGeometry(2.0, 0.7, 1.3);
+    const hoodMat = new THREE.MeshStandardMaterial({ color: 0xe6b800, roughness: 0.3 });
+    const hood = new THREE.Mesh(hoodGeo, hoodMat);
+    hood.position.set(0, 0.9, 1.4);
+    hood.castShadow = true;
+    truckGroup.add(hood);
+
+    // Cab Glass Window
+    const windowGeo = new THREE.BoxGeometry(1.8, 0.7, 0.1);
+    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x5ba8d9, transparent: true, opacity: 0.7, roughness: 0.1 });
+    const glassWindow = new THREE.Mesh(windowGeo, glassMat);
+    glassWindow.position.set(0, 1.8, 1.25);
+    truckGroup.add(glassWindow);
+
+    // Headlights
+    const headlightGeo = new THREE.BoxGeometry(0.3, 0.2, 0.1);
+    const lightMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffcc00, emissiveIntensity: 2 });
+    const hlLeft = new THREE.Mesh(headlightGeo, lightMat);
+    hlLeft.position.set(-0.7, 0.8, 2.05);
+    truckGroup.add(hlLeft);
+
+    const hlRight = new THREE.Mesh(headlightGeo, lightMat);
+    hlRight.position.set(0.7, 0.8, 2.05);
+    truckGroup.add(hlRight);
+
+    // GPS Dome Antenna
+    const gpsGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.1, 16);
+    const gpsMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 2 });
+    const gpsDome = new THREE.Mesh(gpsGeo, gpsMat);
+    gpsDome.position.set(0, 2.3, 0.2);
+    truckGroup.add(gpsDome);
+
+    // Wheels
+    const wheelsGroup = new THREE.Group();
+    const wheelGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.4, 24);
+    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.8 });
+
+    const wheelPositions: [number, number, number][] = [
+      [-1.25, 0.35, 1.4],
+      [1.25, 0.35, 1.4],
+      [-1.25, 0.35, -0.5],
+      [1.25, 0.35, -0.5],
+      [-1.25, 0.35, -1.6],
+      [1.25, 0.35, -1.6],
+    ];
+
+    wheelPositions.forEach((pos) => {
+      const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(...pos);
+      wheel.castShadow = true;
+      wheelsGroup.add(wheel);
+    });
+
+    truckGroup.add(wheelsGroup);
+    truckGroup.position.set(0, -0.4, 0);
+    truckGroup.scale.set(1.1, 1.1, 1.1);
+    scene.add(truckGroup);
+
+    // 6. Road Environment
+    const roadGeo = new THREE.PlaneGeometry(8, 80);
+    const roadMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6 });
+    const road = new THREE.Mesh(roadGeo, roadMat);
+    road.rotation.x = -Math.PI / 2;
+    road.position.y = -0.58;
+    road.receiveShadow = true;
+    scene.add(road);
+
+    // Yellow Center Line
+    const centerLineGeo = new THREE.PlaneGeometry(0.3, 80);
+    const centerLineMat = new THREE.MeshStandardMaterial({ color: 0xffcc00, emissive: 0xffcc00, emissiveIntensity: 0.4 });
+    const centerLine = new THREE.Mesh(centerLineGeo, centerLineMat);
+    centerLine.rotation.x = -Math.PI / 2;
+    centerLine.position.y = -0.57;
+    scene.add(centerLine);
+
+    // Ground Plane
+    const groundGeo = new THREE.PlaneGeometry(80, 80);
+    const groundMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.6;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // 7. Animation Loop (Synched to scroll progress lodisna.com style)
+    let animationFrameId: number;
+
+    const animate = () => {
+      const sp = scrollRef.current;
+
+      // 360 Degree Smooth Rotation based on scroll
+      const targetRotationY = sp * Math.PI * 2.5;
+      truckGroup.rotation.y += (targetRotationY - truckGroup.rotation.y) * 0.08;
+
+      // Floating vibration effect
+      const time = performance.now() * 0.003;
+      truckGroup.position.y = -0.4 + Math.sin(time * 2) * 0.06;
+
+      // Wheel rotation simulation
+      wheelsGroup.children.forEach((w) => {
+        w.rotation.x += 0.05;
+      });
+
+      renderer.render(scene, camera);
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    // 8. Resize Handler
+    const handleResize = () => {
+      if (!container) return;
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || 450;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(animationFrameId);
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+      renderer.dispose();
+    };
+  }, []);
+
+  return <div ref={mountRef} className="w-full h-full min-h-[450px]" />;
 }
