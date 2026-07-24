@@ -1,5 +1,7 @@
 import Navbar from "@/components/landing/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
+import ScrollJourneySection from "@/components/landing/ScrollJourneySection";
+import InteractiveIndiaMapSection from "@/components/landing/InteractiveIndiaMapSection";
 import AboutSection from "@/components/landing/AboutSection";
 import ServicesSection from "@/components/landing/ServicesSection";
 import StatsSection from "@/components/landing/StatsSection";
@@ -14,6 +16,8 @@ export default function HomePage() {
     <main>
       <Navbar />
       <HeroSection />
+      <ScrollJourneySection />
+      <InteractiveIndiaMapSection />
       <AboutSection />
       <ServicesSection />
       <StatsSection />
