@@ -1,9 +1,26 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
-import TruckJourneyCanvas from "@/components/3d/TruckJourneyCanvas";
-import { Radio, Truck, MapPin, Wrench, BarChart3, ArrowDown } from "lucide-react";
+import { Radio, Truck, MapPin, Wrench, ArrowDown } from "lucide-react";
+
+// Dynamic import for WebGL Three.js canvas (SSR incompatible)
+const TruckJourneyCanvas = dynamic(
+  () => import("@/components/3d/TruckJourneyCanvas"),
+  { ssr: false, loading: () => <CanvasSkeleton /> }
+);
+
+function CanvasSkeleton() {
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-dark">
+      <div className="text-center">
+        <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-white/40 text-sm">Loading 3D Truck Highway Canvas...</p>
+      </div>
+    </div>
+  );
+}
 
 export default function ScrollJourneySection() {
   const containerRef = useRef<HTMLDivElement>(null);
