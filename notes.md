@@ -487,4 +487,3 @@ Add a GPS Simulator. Since you likely won't have real GPS devices during develop
 
 ------
 
-

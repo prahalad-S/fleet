@@ -7,6 +7,40 @@ interface TruckCanvasProps {
   scrollProgress: number; // 0 to 1
 }
 
+// Procedural Flame Texture Generator for Real Semi-Truck Cab & Doors
+function createFlameTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d")!;
+
+  // Deep Metallic Blue Background
+  ctx.fillStyle = "#0A2050";
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Red & Orange Flames
+  const drawFlame = (x: number, y: number, w: number, h: number, color: string) => {
+    ctx.beginPath();
+    ctx.moveTo(x, y + h);
+    ctx.bezierCurveTo(x + w * 0.2, y + h * 0.6, x - w * 0.1, y + h * 0.3, x + w * 0.5, y);
+    ctx.bezierCurveTo(x + w * 0.8, y + h * 0.3, x + w * 0.6, y + h * 0.6, x + w, y + h);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+  };
+
+  for (let i = 0; i < 8; i++) {
+    drawFlame(i * 60 + 10, 100, 70, 350, "#C81014");
+    drawFlame(i * 60 + 22, 180, 45, 250, "#FF8C00");
+    drawFlame(i * 60 + 30, 240, 30, 180, "#FFCC00");
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  return texture;
+}
+
 export default function TruckJourneyCanvas({ scrollProgress }: TruckCanvasProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef(scrollProgress);
@@ -20,184 +54,327 @@ export default function TruckJourneyCanvas({ scrollProgress }: TruckCanvasProps)
     if (!container) return;
 
     const width = container.clientWidth || window.innerWidth;
-    const height = container.clientHeight || 450;
+    const height = container.clientHeight || 580;
 
-    // 1. Scene setup
+    // 1. Scene & Atmosphere Fog
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x111111, 0.03);
+    scene.background = new THREE.Color(0x0e1217);
+    scene.fog = new THREE.FogExp2(0x0e1217, 0.012);
 
-    // 2. Camera setup
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, 4, 9);
-    camera.lookAt(0, 0, 0);
+    // 2. Camera Setup — Comfortably Zoomed for prominent 3D truck framing
+    const camera = new THREE.PerspectiveCamera(36, width / height, 0.5, 1000);
+    camera.position.set(-9, 4.8, 19);
+    camera.lookAt(0, 1.0, -1.5);
 
-    // 3. Renderer setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    // 3. WebGL Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.3;
     container.appendChild(renderer.domElement);
 
-    // 4. Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-    scene.add(ambientLight);
+    // 4. Lighting
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x111622, 1.0);
+    scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffcc00, 1.8);
-    dirLight.position.set(10, 15, 10);
-    dirLight.castShadow = true;
-    scene.add(dirLight);
+    const sunLight = new THREE.DirectionalLight(0xfff5e6, 3.0);
+    sunLight.position.set(20, 30, 20);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    scene.add(sunLight);
 
-    const spotLight = new THREE.SpotLight(0xffcc00, 3);
-    spotLight.position.set(0, 5, 5);
-    spotLight.angle = 0.6;
-    scene.add(spotLight);
+    const blueRimLight = new THREE.DirectionalLight(0x0066ff, 1.5);
+    blueRimLight.position.set(-20, 15, -20);
+    scene.add(blueRimLight);
 
-    // 5. Procedural 3D Truck Group
+    // 5. Materials
+    const flameTexture = createFlameTexture();
+
+    const bluePaintMat = new THREE.MeshStandardMaterial({ color: 0x0a2050, metalness: 0.65, roughness: 0.22 });
+    const flameHoodMat = new THREE.MeshStandardMaterial({ map: flameTexture, metalness: 0.55, roughness: 0.22 });
+    const redFenderMat = new THREE.MeshStandardMaterial({ color: 0xc81014, metalness: 0.55, roughness: 0.25 });
+    const chromeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.98, roughness: 0.04 });
+    const trailerSilverMat = new THREE.MeshStandardMaterial({ color: 0xb0b5bc, metalness: 0.75, roughness: 0.28 });
+    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x111111, transmission: 0.85, transparent: true, opacity: 0.8, roughness: 0.05 });
+    const blueLedMat = new THREE.MeshStandardMaterial({ color: 0x0088ff, emissive: 0x0088ff, emissiveIntensity: 4 });
+    const warmHeadlightMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff0bb, emissiveIntensity: 5 });
+    const tireMat = new THREE.MeshStandardMaterial({ color: 0x161616, roughness: 0.92 });
+    const chromeWheelMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, metalness: 0.95, roughness: 0.1 });
+
+    // --- MASTER WORLD GROUP (Truck + Road + Lane Markings rotate TOGETHER) ---
+    const worldGroup = new THREE.Group();
+
+    // 6. Real Semi-Truck & Cargo Trailer Assembly
     const truckGroup = new THREE.Group();
 
-    // Chassis Base
-    const chassisGeo = new THREE.BoxGeometry(2.4, 0.4, 4.4);
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3, metalness: 0.8 });
-    const chassis = new THREE.Mesh(chassisGeo, darkMat);
-    chassis.position.y = 0.4;
-    chassis.castShadow = true;
-    truckGroup.add(chassis);
+    // Tractor Cab & Sleeper
+    const cabSleeperGeo = new THREE.BoxGeometry(2.4, 1.8, 3.2);
+    const cabSleeper = new THREE.Mesh(cabSleeperGeo, bluePaintMat);
+    cabSleeper.position.set(0, 1.8, -0.6);
+    cabSleeper.castShadow = true;
+    truckGroup.add(cabSleeper);
 
-    // Main Body — JCB Yellow
-    const bodyGeo = new THREE.BoxGeometry(2.2, 1.1, 2.9);
-    const jcbYellowMat = new THREE.MeshStandardMaterial({ color: 0xffcc00, roughness: 0.2, metalness: 0.4 });
-    const body = new THREE.Mesh(bodyGeo, jcbYellowMat);
-    body.position.set(0, 1.1, -0.2);
-    body.castShadow = true;
-    truckGroup.add(body);
+    // Windshield & Chrome Visor
+    const windshield = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.6, 0.05), glassMat);
+    windshield.position.set(0, 2.1, 0.96);
+    truckGroup.add(windshield);
 
-    // Hood Front Accent
-    const hoodGeo = new THREE.BoxGeometry(2.0, 0.7, 1.3);
-    const hoodMat = new THREE.MeshStandardMaterial({ color: 0xe6b800, roughness: 0.3 });
-    const hood = new THREE.Mesh(hoodGeo, hoodMat);
-    hood.position.set(0, 0.9, 1.4);
+    const visor = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.25, 0.4), chromeMat);
+    visor.rotation.x = 0.2;
+    visor.position.set(0, 2.45, 1.05);
+    visor.castShadow = true;
+    truckGroup.add(visor);
+
+    // Blue Cab Marker Lights
+    for (let lx = -1.0; lx <= 1.0; lx += 0.25) {
+      const led = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 12), blueLedMat);
+      led.position.set(lx, 2.58, 1.15);
+      truckGroup.add(led);
+    }
+
+    // Side Mirrors
+    for (let side = -1; side <= 1; side += 2) {
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.04), chromeMat);
+      arm.position.set(side * 1.35, 1.9, 0.8);
+      const mirror = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 0.2), chromeMat);
+      mirror.position.set(side * 1.6, 1.9, 0.8);
+      truckGroup.add(arm, mirror);
+    }
+
+    // Tall Vertical Chrome Exhaust Stacks
+    for (let side = -1; side <= 1; side += 2) {
+      const stack = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 3.8, 20), chromeMat);
+      stack.position.set(side * 1.25, 3.1, -0.4);
+      stack.castShadow = true;
+
+      const shield = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 1.6, 16), chromeMat);
+      shield.position.set(side * 1.25, 2.0, -0.4);
+      truckGroup.add(stack, shield);
+    }
+
+    // Chrome Fuel Tanks & Steps
+    for (let side = -1; side <= 1; side += 2) {
+      const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 1.8, 24), chromeMat);
+      tank.rotation.x = Math.PI / 2;
+      tank.position.set(side * 1.35, 0.65, 0.2);
+      tank.castShadow = true;
+
+      const step = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.05, 1.4), chromeMat);
+      step.position.set(side * 1.4, 0.95, 0.2);
+      truckGroup.add(tank, step);
+    }
+
+    // Long Flame Hood & Red Fenders
+    const hood = new THREE.Mesh(new THREE.BoxGeometry(2.35, 1.15, 2.5), flameHoodMat);
+    hood.position.set(0, 1.28, 2.2);
     hood.castShadow = true;
     truckGroup.add(hood);
 
-    // Cab Glass Window
-    const windowGeo = new THREE.BoxGeometry(1.8, 0.7, 0.1);
-    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x5ba8d9, transparent: true, opacity: 0.7, roughness: 0.1 });
-    const glassWindow = new THREE.Mesh(windowGeo, glassMat);
-    glassWindow.position.set(0, 1.8, 1.25);
-    truckGroup.add(glassWindow);
+    for (let side = -1; side <= 1; side += 2) {
+      const fender = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.8, 1.4), redFenderMat);
+      fender.position.set(side * 1.3, 0.7, 2.6);
+      fender.castShadow = true;
+      truckGroup.add(fender);
+    }
 
-    // Headlights
-    const headlightGeo = new THREE.BoxGeometry(0.3, 0.2, 0.1);
-    const lightMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffcc00, emissiveIntensity: 2 });
-    const hlLeft = new THREE.Mesh(headlightGeo, lightMat);
-    hlLeft.position.set(-0.7, 0.8, 2.05);
-    truckGroup.add(hlLeft);
+    // Massive Chrome Grille & Bumper
+    const grille = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.4, 0.15), chromeMat);
+    grille.position.set(0, 1.3, 3.48);
+    grille.castShadow = true;
+    truckGroup.add(grille);
 
-    const hlRight = new THREE.Mesh(headlightGeo, lightMat);
-    hlRight.position.set(0.7, 0.8, 2.05);
-    truckGroup.add(hlRight);
+    for (let gx = -0.75; gx <= 0.75; gx += 0.15) {
+      const slat = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.3, 0.18), chromeMat);
+      slat.position.set(gx, 1.3, 3.49);
+      truckGroup.add(slat);
+    }
 
-    // GPS Dome Antenna
-    const gpsGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.1, 16);
-    const gpsMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 2 });
-    const gpsDome = new THREE.Mesh(gpsGeo, gpsMat);
-    gpsDome.position.set(0, 2.3, 0.2);
-    truckGroup.add(gpsDome);
+    const badge = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.08), redFenderMat);
+    badge.position.set(0, 1.9, 3.5);
+    truckGroup.add(badge);
 
-    // Wheels
+    const bumper = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.45, 0.3), chromeMat);
+    bumper.position.set(0, 0.35, 3.55);
+    bumper.castShadow = true;
+    truckGroup.add(bumper);
+
+    for (let bx = -1.15; bx <= 1.15; bx += 0.2) {
+      const ledB = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 12), blueLedMat);
+      ledB.position.set(bx, 0.22, 3.71);
+      truckGroup.add(ledB);
+    }
+
+    // Quad Headlights
+    for (let side = -1; side <= 1; side += 2) {
+      const hlHousing = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.2), chromeMat);
+      hlHousing.position.set(side * 1.25, 0.9, 3.45);
+      truckGroup.add(hlHousing);
+
+      for (let ly = -0.08; ly <= 0.08; ly += 0.16) {
+        const roundL = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.05, 16), warmHeadlightMat);
+        roundL.rotation.x = Math.PI / 2;
+        roundL.position.set(side * 1.25, 0.9 + ly, 3.56);
+        truckGroup.add(roundL);
+      }
+
+      const spot = new THREE.SpotLight(0xfff5cc, 6, 30, 0.45, 0.5);
+      spot.position.set(side * 1.25, 0.9, 3.6);
+      spot.target.position.set(side * 1.25, 0, 20);
+      truckGroup.add(spot);
+      truckGroup.add(spot.target);
+    }
+
+    // Cargo Container Trailer
+    const trailerGroup = new THREE.Group();
+
+    const trailerBody = new THREE.Mesh(new THREE.BoxGeometry(2.7, 3.1, 10.5), trailerSilverMat);
+    trailerBody.position.set(0, 2.5, -7.2);
+    trailerBody.castShadow = true;
+    trailerGroup.add(trailerBody);
+
+    const trailerTrim = new THREE.Mesh(new THREE.BoxGeometry(2.75, 0.25, 10.6), bluePaintMat);
+    trailerTrim.position.set(0, 4.05, -7.2);
+    trailerGroup.add(trailerTrim);
+
+    const trailerFrontTrim = new THREE.Mesh(new THREE.BoxGeometry(2.75, 3.15, 0.2), bluePaintMat);
+    trailerFrontTrim.position.set(0, 2.5, -2.0);
+    trailerGroup.add(trailerFrontTrim);
+
+    const shieldBadge = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.1), redFenderMat);
+    shieldBadge.position.set(0, 3.0, -1.88);
+    trailerGroup.add(shieldBadge);
+
+    const rearFender = new THREE.Mesh(new THREE.BoxGeometry(2.85, 0.4, 2.6), redFenderMat);
+    rearFender.position.set(0, 0.85, -10.5);
+    trailerGroup.add(rearFender);
+
+    truckGroup.add(trailerGroup);
+
+    // Wheels & Tandem Axles
     const wheelsGroup = new THREE.Group();
-    const wheelGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.4, 24);
-    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.8 });
+    const tireGeo = new THREE.CylinderGeometry(0.52, 0.52, 0.38, 32);
+    const rimGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.39, 24);
 
-    const wheelPositions: [number, number, number][] = [
-      [-1.25, 0.35, 1.4],
-      [1.25, 0.35, 1.4],
-      [-1.25, 0.35, -0.5],
-      [1.25, 0.35, -0.5],
-      [-1.25, 0.35, -1.6],
-      [1.25, 0.35, -1.6],
+    const wheelCoords: [number, number, number][] = [
+      [-1.3, 0.52, 2.6],
+      [1.3, 0.52, 2.6],
+      [-1.3, 0.52, -1.2],
+      [1.3, 0.52, -1.2],
+      [-1.3, 0.52, -2.1],
+      [1.3, 0.52, -2.1],
+      [-1.3, 0.52, -9.8],
+      [1.3, 0.52, -9.8],
+      [-1.3, 0.52, -11.0],
+      [1.3, 0.52, -11.0],
     ];
 
-    wheelPositions.forEach((pos) => {
-      const wheel = new THREE.Mesh(wheelGeo, wheelMat);
-      wheel.rotation.z = Math.PI / 2;
-      wheel.position.set(...pos);
-      wheel.castShadow = true;
-      wheelsGroup.add(wheel);
+    wheelCoords.forEach(([wx, wy, wz]) => {
+      const singleW = new THREE.Group();
+      const tire = new THREE.Mesh(tireGeo, tireMat);
+      tire.rotation.z = Math.PI / 2;
+      tire.castShadow = true;
+
+      const rim = new THREE.Mesh(rimGeo, chromeWheelMat);
+      rim.rotation.z = Math.PI / 2;
+
+      singleW.add(tire, rim);
+      singleW.position.set(wx, wy, wz);
+      wheelsGroup.add(singleW);
     });
 
     truckGroup.add(wheelsGroup);
-    truckGroup.position.set(0, -0.4, 0);
-    truckGroup.scale.set(1.1, 1.1, 1.1);
-    scene.add(truckGroup);
+    truckGroup.position.set(0, -0.1, 3.5);
 
-    // 6. Road Environment
-    const roadGeo = new THREE.PlaneGeometry(8, 80);
-    const roadMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6 });
+    // Add Truck to Master World Group
+    worldGroup.add(truckGroup);
+
+    // --- ROAD & ENVIRONMENT (Grouped inside World Group so Road & Truck rotate together!) ---
+    const roadGeo = new THREE.PlaneGeometry(16, 120);
+    const roadMat = new THREE.MeshStandardMaterial({ color: 0x14171c, roughness: 0.3, metalness: 0.2 });
     const road = new THREE.Mesh(roadGeo, roadMat);
     road.rotation.x = -Math.PI / 2;
-    road.position.y = -0.58;
+    road.position.y = -0.15;
     road.receiveShadow = true;
-    scene.add(road);
+    worldGroup.add(road);
 
-    // Yellow Center Line
-    const centerLineGeo = new THREE.PlaneGeometry(0.3, 80);
-    const centerLineMat = new THREE.MeshStandardMaterial({ color: 0xffcc00, emissive: 0xffcc00, emissiveIntensity: 0.4 });
-    const centerLine = new THREE.Mesh(centerLineGeo, centerLineMat);
-    centerLine.rotation.x = -Math.PI / 2;
-    centerLine.position.y = -0.57;
-    scene.add(centerLine);
+    // Yellow Lane Markings
+    const laneGroup = new THREE.Group();
+    for (let z = -50; z <= 50; z += 5) {
+      const lineG = new THREE.PlaneGeometry(0.3, 2.5);
+      const lineM = new THREE.MeshStandardMaterial({ color: 0xffcc00, emissive: 0xffcc00, emissiveIntensity: 0.8 });
+      const line = new THREE.Mesh(lineG, lineM);
+      line.rotation.x = -Math.PI / 2;
+      line.position.set(0, -0.14, z);
+      laneGroup.add(line);
+    }
+    worldGroup.add(laneGroup);
 
-    // Ground Plane
-    const groundGeo = new THREE.PlaneGeometry(80, 80);
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+    // Surrounding Environment Ground
+    const groundGeo = new THREE.PlaneGeometry(160, 160);
+    const groundMat = new THREE.MeshStandardMaterial({ color: 0x0e1217, roughness: 0.95 });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.6;
+    ground.position.y = -0.16;
     ground.receiveShadow = true;
-    scene.add(ground);
+    worldGroup.add(ground);
 
-    // 7. Animation Loop (Synched to scroll progress lodisna.com style)
-    let animationFrameId: number;
+    // Add Master World Group to Scene
+    scene.add(worldGroup);
 
-    const animate = () => {
+    // 7. 180-DEGREE SYNCHRONIZED ROTATION (WORLD + ROAD + TRUCK ROTATE TOGETHER)
+    let animId: number;
+
+    const renderLoop = () => {
       const sp = scrollRef.current;
 
-      // 360 Degree Smooth Rotation based on scroll
-      const targetRotationY = sp * Math.PI * 2.5;
-      truckGroup.rotation.y += (targetRotationY - truckGroup.rotation.y) * 0.08;
+      // ROTATE ENTIRE WORLD (Road + Truck align perfectly without skidding!)
+      const startAngle = -Math.PI * 0.35;
+      const targetY = startAngle + sp * Math.PI * 0.75;
+      worldGroup.rotation.y += (targetY - worldGroup.rotation.y) * 0.08;
 
-      // Floating vibration effect
-      const time = performance.now() * 0.003;
-      truckGroup.position.y = -0.4 + Math.sin(time * 2) * 0.06;
+      // Camera Tracking — Comfortably Zoomed Framing
+      camera.position.x = -9 + Math.sin(sp * Math.PI) * 1.5;
+      camera.position.z = 19 + Math.cos(sp * Math.PI) * 1.5;
+      camera.position.y = 4.8;
+      camera.lookAt(0, 1.0, -1.5);
 
-      // Wheel rotation simulation
+      // Subtle natural driving vibration
+      const t = performance.now() * 0.003;
+      truckGroup.position.y = -0.1 + Math.sin(t * 3.5) * 0.02;
+
+      // Spin Wheels Forward
       wheelsGroup.children.forEach((w) => {
-        w.rotation.x += 0.05;
+        w.rotation.x -= 0.06;
       });
 
+      // Animate Center Lane Markings (Negative sign for FORWARD truck motion!)
+      laneGroup.position.z = -((performance.now() * 0.015) % 5);
+
       renderer.render(scene, camera);
-      animationFrameId = requestAnimationFrame(animate);
+      animId = requestAnimationFrame(renderLoop);
     };
 
-    animate();
+    renderLoop();
 
     // 8. Resize Handler
-    const handleResize = () => {
+    const onResize = () => {
       if (!container) return;
       const w = container.clientWidth || window.innerWidth;
-      const h = container.clientHeight || 450;
+      const h = container.clientHeight || 580;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(animId);
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -205,5 +382,5 @@ export default function TruckJourneyCanvas({ scrollProgress }: TruckCanvasProps)
     };
   }, []);
 
-  return <div ref={mountRef} className="w-full h-full min-h-[450px]" />;
+  return <div ref={mountRef} className="w-full h-full min-h-[580px]" />;
 }
