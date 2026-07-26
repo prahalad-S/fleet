@@ -11,7 +11,7 @@ const projects = [
     vehicles: 45,
     duration: "18 months",
     category: "Infrastructure",
-    image: "from-yellow-500/30 via-orange-500/20 to-red-500/10",
+    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800",
   },
   {
     title: "NH-44 Highway Widening",
@@ -19,7 +19,7 @@ const projects = [
     vehicles: 32,
     duration: "24 months",
     category: "Highways",
-    image: "from-blue-500/30 via-cyan-500/20 to-teal-500/10",
+    image: "https://images.unsplash.com/photo-1519999482648-25049ddd37b1?auto=format&fit=crop&q=80&w=800",
   },
   {
     title: "Navi Mumbai Airport",
@@ -27,7 +27,7 @@ const projects = [
     vehicles: 78,
     duration: "36 months",
     category: "Aviation",
-    image: "from-purple-500/30 via-violet-500/20 to-indigo-500/10",
+    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&q=80&w=800",
   },
   {
     title: "Chennai Smart City",
@@ -35,7 +35,7 @@ const projects = [
     vehicles: 23,
     duration: "12 months",
     category: "Smart City",
-    image: "from-green-500/30 via-emerald-500/20 to-lime-500/10",
+    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
   },
   {
     title: "Bangalore Ring Road",
@@ -43,7 +43,7 @@ const projects = [
     vehicles: 56,
     duration: "30 months",
     category: "Roads",
-    image: "from-pink-500/30 via-rose-500/20 to-red-500/10",
+    image: "https://images.unsplash.com/photo-1590496793929-36417d3117de?auto=format&fit=crop&q=80&w=800",
   },
   {
     title: "Polavaram Dam",
@@ -51,7 +51,7 @@ const projects = [
     vehicles: 91,
     duration: "48 months",
     category: "Dam & Irrigation",
-    image: "from-amber-500/30 via-yellow-500/20 to-orange-500/10",
+    image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=800",
   },
 ];
 
@@ -70,7 +70,7 @@ export default function ProjectsSection() {
   const isInView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section id="projects" className="section-padding bg-surface relative overflow-hidden">
+    <section id="projects" className="section-padding bg-surface dark:bg-dark-800 relative overflow-hidden transition-colors">
       <div className="max-w-[1400px] mx-auto" ref={ref}>
         {/* Header */}
         <motion.div
@@ -82,11 +82,11 @@ export default function ProjectsSection() {
           <span className="inline-block text-sm font-bold text-accent uppercase tracking-[0.15em] mb-4">
             Our Projects
           </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-black text-dark leading-tight mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-black text-dark dark:text-white leading-tight mb-6">
             Major Projects{" "}
             <span className="gradient-text">Powered by FleetForce</span>
           </h2>
-          <p className="text-text-secondary text-lg">
+          <p className="text-text-secondary dark:text-gray-300 text-lg">
             From mega infrastructure to smart city projects — FleetForce manages
             fleets across India&apos;s most ambitious construction projects.
           </p>
@@ -105,10 +105,16 @@ export default function ProjectsSection() {
               variants={fadeUp}
               className="card-premium group cursor-pointer"
             >
-              {/* Image placeholder with gradient */}
-              <div
-                className={`h-48 bg-gradient-to-br ${project.image} relative overflow-hidden`}
-              >
+              {/* Image with overlay */}
+              <div className="h-48 relative overflow-hidden bg-dark-700">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    e.currentTarget.src = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800";
+                  }}
+                />
                 <div className="absolute inset-0 bg-dark/20 group-hover:bg-dark/10 transition-colors duration-300" />
                 <div className="absolute top-4 left-4">
                   <span className="px-3 py-1 bg-dark/60 backdrop-blur-sm text-white text-xs font-bold rounded-full uppercase tracking-wider">
@@ -122,22 +128,22 @@ export default function ProjectsSection() {
 
               {/* Content */}
               <div className="p-6">
-                <h3 className="font-heading font-bold text-dark text-xl mb-3 group-hover:text-primary transition-colors">
+                <h3 className="font-heading font-bold text-dark dark:text-white text-xl mb-3 group-hover:text-primary transition-colors">
                   {project.title}
                 </h3>
-                <div className="flex items-center gap-2 text-text-muted text-sm mb-4">
+                <div className="flex items-center gap-2 text-text-muted dark:text-gray-400 text-sm mb-4">
                   <MapPin className="w-3.5 h-3.5" />
                   {project.location}
                 </div>
                 <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1.5 text-text-secondary">
+                  <div className="flex items-center gap-1.5 text-text-secondary dark:text-gray-300">
                     <Truck className="w-4 h-4 text-primary" />
-                    <span className="font-semibold">{project.vehicles}</span>{" "}
+                    <span className="font-semibold text-dark dark:text-white">{project.vehicles}</span>{" "}
                     vehicles
                   </div>
-                  <div className="flex items-center gap-1.5 text-text-secondary">
+                  <div className="flex items-center gap-1.5 text-text-secondary dark:text-gray-300">
                     <Calendar className="w-4 h-4 text-accent" />
-                    {project.duration}
+                    <span className="font-semibold text-dark dark:text-white">{project.duration}</span>
                   </div>
                 </div>
               </div>

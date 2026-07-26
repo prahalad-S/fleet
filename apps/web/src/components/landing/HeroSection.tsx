@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Play, MapPin, Shield, Zap } from "lucide-react";
 import LiveTrackingHeroCard from "./LiveTrackingHeroCard";
+import HeroRightTrackingCard from "./HeroRightTrackingCard";
 
 // Floating feature badges
 const floatingBadges = [
@@ -14,17 +15,27 @@ const floatingBadges = [
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-hero">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-dark">
       {/* Background grid */}
-      <div className="absolute inset-0 bg-grid opacity-50" />
+      <div className="absolute inset-0 bg-grid opacity-50 z-0 pointer-events-none" />
 
       {/* Animated gradient orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse-glow" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/10 rounded-full blur-[120px] animate-pulse-glow" />
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse-glow pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/10 rounded-full blur-[120px] animate-pulse-glow pointer-events-none" />
+
+      {/* Right-Half 100% Height Tracking Card (Screen Center to Right Edge) */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
+        className="absolute top-0 right-0 bottom-0 w-full lg:w-1/2 h-full z-0 hidden lg:block pointer-events-auto"
+      >
+        <HeroRightTrackingCard />
+      </motion.div>
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 lg:px-8 py-32 lg:py-20">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left — Text */}
           <div>
             <motion.div
@@ -102,35 +113,19 @@ export default function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Right — Live Telemetry Tracking Hero Card (xcoldchain inspired) */}
+          {/* Right Mobile Fallback & Hidden Preserved Component */}
+          <div className="relative lg:hidden">
+            <HeroRightTrackingCard />
+          </div>
+
           <div className="relative">
             <LiveTrackingHeroCard />
-
-            {/* Floating badges */}
-            {floatingBadges.map((badge) => {
-              const Icon = badge.icon;
-              return (
-                <motion.div
-                  key={badge.label}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: badge.delay }}
-                  className="absolute glass-dark rounded-xl px-3.5 py-2 flex items-center gap-2 pointer-events-none hidden sm:flex"
-                  style={{ left: badge.x, top: badge.y }}
-                >
-                  <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <Icon className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <span className="text-white text-xs font-semibold">{badge.label}</span>
-                </motion.div>
-              );
-            })}
           </div>
         </div>
       </div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent opacity-20" />
     </section>
   );
 }

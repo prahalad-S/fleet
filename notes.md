@@ -480,10 +480,13 @@ User management
 Authentication
 AI assistant
 Deployment instructions
-Docker support
+Supabase integration
 README documentation
 
 Add a GPS Simulator. Since you likely won't have real GPS devices during development, create a simulation that moves vehicle markers every 2–5 seconds on the map, updates speed, fuel level, and status in real time using WebSockets. This will make the dashboard feel like a live production fleet management system during demos.
 
 ------
+
+
+
 

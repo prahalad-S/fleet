@@ -16,7 +16,7 @@ function CanvasSkeleton() {
     <div className="w-full h-full flex items-center justify-center bg-dark">
       <div className="text-center">
         <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-white/40 text-sm font-medium">Loading 3D Highway Canvas...</p>
+        <p className="text-white/40 text-sm font-medium">Loading 3D JCB 3DX Canvas...</p>
       </div>
     </div>
   );
@@ -48,31 +48,31 @@ export default function ScrollJourneySection() {
   const checkpoints = [
     {
       step: "01",
-      title: "Hero Engine Ignition",
-      desc: "Heavy Optimus 3D semi-truck powers up on the highway, initializing 5G telemetry core.",
+      title: "JCB 3DX Engine Ignition",
+      desc: "JCB 3DX Backhoe Loader powers up on site, initializing 5G LiveLink telematics core.",
       progress: 0.1,
       icon: Truck,
       tag: "Ignition Phase",
     },
     {
       step: "02",
-      title: "5G Signal Telematics",
-      desc: "Live vehicle telemetry & speed sensors streaming data to cloud database at 12ms low latency.",
+      title: "5G LiveLink Telematics",
+      desc: "Live machine telematics, hydraulic sensors & engine metrics streaming data at 12ms ultra-low latency.",
       progress: 0.35,
       icon: Radio,
       tag: "Signal Active",
     },
     {
       step: "03",
-      title: "Warehouse & Hub Navigation",
-      desc: "Real-time location, driver assignment & interactive pan-India map pin tracking.",
+      title: "Site & Job Location Tracking",
+      desc: "Real-time GPS location, operator logs & interactive site map pin tracking.",
       progress: 0.65,
       icon: MapPin,
       tag: "GPS Pin Active",
     },
     {
       step: "04",
-      title: "Predictive Service & Analytics",
+      title: "Predictive Service & Hydraulics",
       desc: "AI diagnostics monitoring hydraulic pressure, engine health, and scheduled maintenance.",
       progress: 0.9,
       icon: Wrench,
@@ -91,11 +91,11 @@ export default function ScrollJourneySection() {
         <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 px-6 py-2.5 glass-dark rounded-full border border-white/15 shadow-2xl flex items-center gap-3">
           <div className="w-3 h-3 rounded-full bg-primary animate-ping" />
           <span className="text-white text-xs font-bold uppercase tracking-widest">
-            Interactive 3D Fleet Journey & Live Operations
+            Interactive 3D JCB 3DX Backhoe Loader Telematics
           </span>
         </div>
 
-        {/* 3D Semi-Truck Canvas */}
+        {/* 3D JCB 3DX Backhoe Loader Canvas */}
         <div className="w-full h-full absolute inset-0 z-10">
           <TruckJourneyCanvas scrollProgress={scrollProgress} />
         </div>
@@ -170,7 +170,7 @@ export default function ScrollJourneySection() {
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-4 px-6 py-3 glass-dark rounded-full border border-white/15 shadow-2xl">
           <ArrowDown className="w-4 h-4 text-primary animate-bounce" />
           <span className="text-white/80 text-xs font-bold tracking-wide">
-            Scroll down to drive 3D semi-truck
+            Scroll down to inspect 3D JCB 3DX Backhoe Loader
           </span>
           <div className="w-36 h-2 bg-white/15 rounded-full overflow-hidden">
             <div

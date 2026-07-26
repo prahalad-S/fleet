@@ -56,8 +56,8 @@ Designed for construction equipment companies like **JCB, Caterpillar, Komatsu, 
 
 - **Frontend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS v4, Framer Motion, Leaflet, Recharts, Lucide Icons, React Icons.
 - **Backend**: Node.js, Express 5, Prisma ORM, Socket.IO, JWT, bcryptjs, Helmet.
-- **Database**: PostgreSQL 16.
-- **Deployment**: Vercel ready for frontend, Railway / Docker for backend & DB.
+- **Database**: PostgreSQL (Supabase).
+- **Deployment**: Vercel ready for frontend, Supabase for DB & Auth.
 
 ---
 
@@ -93,15 +93,6 @@ cd apps/server
 npm run dev
 ```
 Runs on `http://localhost:5000` with WebSocket server at `ws://localhost:5000`.
-
----
-
-## 🐳 Docker Deployment
-
-To spin up PostgreSQL, Express Backend, and Next.js Frontend together:
-```bash
-docker-compose up -d --build
-```
 
 ---
 

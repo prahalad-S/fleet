@@ -41,8 +41,8 @@ export default function ContactSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-2 space-y-6"
           >
-            <div className="card-premium p-8 bg-dark text-white">
-              <h3 className="font-heading font-bold text-xl mb-8">
+            <div className="card-premium p-8 text-black dark:text-white transition-colors">
+              <h3 className="font-heading font-bold text-xl mb-8 text-black dark:text-white">
                 Contact Information
               </h3>
               <div className="space-y-6">
@@ -51,8 +51,8 @@ export default function ContactSection() {
                     <MapPin className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm mb-1">Head Office</p>
-                    <p className="text-white/50 text-sm leading-relaxed">
+                    <p className="font-bold text-sm mb-1 text-black dark:text-white">Head Office</p>
+                    <p className="text-black dark:text-white/80 font-medium text-sm leading-relaxed">
                       Tech Hub, HITEC City
                       <br />
                       Hyderabad, Telangana 500081
@@ -64,9 +64,9 @@ export default function ContactSection() {
                     <Phone className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm mb-1">Phone</p>
-                    <p className="text-white/50 text-sm">+91 987 654 3210</p>
-                    <p className="text-white/50 text-sm">+91 987 654 3211</p>
+                    <p className="font-bold text-sm mb-1 text-black dark:text-white">Phone</p>
+                    <p className="text-black dark:text-white/80 font-medium text-sm">+91 987 654 3210</p>
+                    <p className="text-black dark:text-white/80 font-medium text-sm">+91 987 654 3211</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -74,9 +74,9 @@ export default function ContactSection() {
                     <Mail className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm mb-1">Email</p>
-                    <p className="text-white/50 text-sm">info@fleetforce.in</p>
-                    <p className="text-white/50 text-sm">sales@fleetforce.in</p>
+                    <p className="font-bold text-sm mb-1 text-black dark:text-white">Email</p>
+                    <p className="text-black dark:text-white/80 font-medium text-sm">info@fleetforce.in</p>
+                    <p className="text-black dark:text-white/80 font-medium text-sm">sales@fleetforce.in</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -84,11 +84,11 @@ export default function ContactSection() {
                     <Clock className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm mb-1">Working Hours</p>
-                    <p className="text-white/50 text-sm">
+                    <p className="font-bold text-sm mb-1 text-black dark:text-white">Working Hours</p>
+                    <p className="text-black dark:text-white/80 font-medium text-sm">
                       Mon — Sat: 9:00 AM — 6:00 PM
                     </p>
-                    <p className="text-white/50 text-sm">
+                    <p className="text-black dark:text-white/80 font-medium text-sm">
                       Sun: Closed
                     </p>
                   </div>

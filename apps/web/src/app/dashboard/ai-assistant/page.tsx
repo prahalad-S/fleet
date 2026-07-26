@@ -27,8 +27,7 @@ const sampleQueries = [
   "Where is AP39AB1234?",
   "Which vehicles are currently moving?",
   "Show driver Suresh Reddy",
-  "Predict maintenance for excavators",
-  "Who is Virat Kohli?",
+  "Predict maintenance for excavators"
 ];
 
 // Master Database Records for FleetForce AI
@@ -205,7 +204,7 @@ export default function AIAssistantPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  
+
   // Conversation Context Memory
   const [contextVehicle, setContextVehicle] = useState<string | null>(null);
   const [contextDriver, setContextDriver] = useState<string | null>(null);
@@ -237,7 +236,7 @@ export default function AIAssistantPage() {
 
       if (isForbidden) {
         aiText = "I'm designed specifically for the FleetForce application and can assist with fleet management tasks such as vehicles, drivers, GPS tracking, maintenance, fuel, and reports. I don't provide answers outside this application's scope.";
-      } 
+      }
       // 2. Greetings
       else if (/^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|sup|help)\b/i.test(lowerQuery)) {
         aiText = "Hello! I am FleetForce AI. How can I assist you with your fleet operations today? You can ask me about vehicle tracking, driver info, maintenance schedules, fuel consumption, or live alerts.";
@@ -248,20 +247,20 @@ export default function AIAssistantPage() {
         (/\b[a-z]{2}\d{2}[a-z]{2}\d{4}\b/i.test(lowerQuery))
       ) {
         const foundKey = Object.keys(vehiclesDatabase).find((vKey) => lowerQuery.includes(vKey.toLowerCase()));
-        
+
         if (foundKey && vehiclesDatabase[foundKey]) {
           const v = vehiclesDatabase[foundKey];
           setContextVehicle(foundKey);
           setContextDriver(v.driver);
 
           aiText = `Vehicle ${v.vehicleNumber} (${v.model}) is currently near ${v.location}.\n` +
-                   `• Status: ${v.status}\n` +
-                   `• Speed: ${v.speed} km/h\n` +
-                   `• Driver: ${v.driver}\n` +
-                   `• Fuel: ${v.fuelLevel}%\n` +
-                   `• Engine Status: ${v.engineStatus}\n` +
-                   `• Trip Status: ${v.tripStatus}\n` +
-                   `• Last Updated: ${v.lastUpdated}`;
+            `• Status: ${v.status}\n` +
+            `• Speed: ${v.speed} km/h\n` +
+            `• Driver: ${v.driver}\n` +
+            `• Fuel: ${v.fuelLevel}%\n` +
+            `• Engine Status: ${v.engineStatus}\n` +
+            `• Trip Status: ${v.tripStatus}\n` +
+            `• Last Updated: ${v.lastUpdated}`;
 
           cardData = {
             title: `Vehicle ${v.vehicleNumber} Telemetry`,
@@ -297,11 +296,11 @@ export default function AIAssistantPage() {
           setContextVehicle(foundDriver.assignedVehicle);
 
           aiText = `Driver ${foundDriver.name} (${foundDriver.empId}):\n` +
-                   `• Assigned Vehicle: ${foundDriver.assignedVehicle}\n` +
-                   `• Current Status: ${foundDriver.status}\n` +
-                   `• Today's Trip: ${foundDriver.todaysTrip}\n` +
-                   `• License Expiry: ${foundDriver.licenseExpiry}\n` +
-                   `• Contact: ${foundDriver.phone}`;
+            `• Assigned Vehicle: ${foundDriver.assignedVehicle}\n` +
+            `• Current Status: ${foundDriver.status}\n` +
+            `• Today's Trip: ${foundDriver.todaysTrip}\n` +
+            `• License Expiry: ${foundDriver.licenseExpiry}\n` +
+            `• Contact: ${foundDriver.phone}`;
 
           cardData = {
             title: `Driver Record — ${foundDriver.name}`,
@@ -321,10 +320,10 @@ export default function AIAssistantPage() {
         } else {
           // General drivers info
           aiText = "Here are the on-duty drivers currently assigned to active fleet vehicles:\n" +
-                   "• Ravi Kumar — AP39AB1234 (Hyderabad → Warangal)\n" +
-                   "• Suresh Reddy — TS09CD5678 (Mumbai → Pune)\n" +
-                   "• Amit Sharma — MH12EF9012 (Pune Bypass Site)\n" +
-                   "• Mohan Das — TN22IJ7890 (Chennai Expressway)";
+            "• Ravi Kumar — AP39AB1234 (Hyderabad → Warangal)\n" +
+            "• Suresh Reddy — TS09CD5678 (Mumbai → Pune)\n" +
+            "• Amit Sharma — MH12EF9012 (Pune Bypass Site)\n" +
+            "• Mohan Das — TN22IJ7890 (Chennai Expressway)";
         }
       }
       // 5. Context Memory Follow-up (e.g. "Who is the driver?" or "What is its fuel?")
@@ -334,22 +333,22 @@ export default function AIAssistantPage() {
       ) {
         const v = vehiclesDatabase[contextVehicle];
         aiText = `For Vehicle ${v.vehicleNumber}:\n` +
-                 `• Assigned Driver: ${v.driver}\n` +
-                 `• Current Speed: ${v.speed} km/h\n` +
-                 `• Fuel Level: ${v.fuelLevel}%\n` +
-                 `• Location: ${v.location}`;
+          `• Assigned Driver: ${v.driver}\n` +
+          `• Current Speed: ${v.speed} km/h\n` +
+          `• Fuel Level: ${v.fuelLevel}%\n` +
+          `• Location: ${v.location}`;
       }
       // 6. Moving / Running Vehicles
       else if (normalized.includes("moving") || normalized.includes("running") || normalized.includes("motion")) {
         const moving = Object.values(vehiclesDatabase).filter((v) => v.speed > 0);
         aiText = "Here are the vehicles currently in motion:\n" +
-                 moving.map((v) => `• ${v.vehicleNumber} (${v.model}) — ${v.speed} km/h (Driver: ${v.driver})`).join("\n");
+          moving.map((v) => `• ${v.vehicleNumber} (${v.model}) — ${v.speed} km/h (Driver: ${v.driver})`).join("\n");
       }
       // 7. Idle Vehicles
       else if (normalized.includes("idle") || normalized.includes("idling")) {
         const idle = Object.values(vehiclesDatabase).filter((v) => v.status === "Idle");
         aiText = "Here are the vehicles currently idling:\n" +
-                 idle.map((v) => `• ${v.vehicleNumber} — ${v.location} (Engine Status: ${v.engineStatus})`).join("\n");
+          idle.map((v) => `• ${v.vehicleNumber} — ${v.location} (Engine Status: ${v.engineStatus})`).join("\n");
       }
       // 8. Highest Fuel / Fuel Consumption
       else if (normalized.includes("highest fuel") || normalized.includes("fuel consumption") || normalized.includes("fuel")) {
@@ -358,18 +357,18 @@ export default function AIAssistantPage() {
       // 9. Maintenance Records & Predictions
       else if (normalized.includes("maintenance") || normalized.includes("predict") || normalized.includes("service")) {
         aiText = "Recorded Maintenance Summary:\n" +
-                 "• AP39AB1234: Oil Change + Filter (Completed 2026-07-20)\n" +
-                 "• TS09CD5678: Hydraulic System Inspection (Scheduled 2026-07-28)\n" +
-                 "• MH12EF9012: Engine Repair (In Progress at Komatsu Service Center)";
+          "• AP39AB1234: Oil Change + Filter (Completed 2026-07-20)\n" +
+          "• TS09CD5678: Hydraulic System Inspection (Scheduled 2026-07-28)\n" +
+          "• MH12EF9012: Engine Repair (In Progress at Komatsu Service Center)";
       }
       // 10. General Fleet Analytics / Numbers
       else if (normalized.includes("analytics") || normalized.includes("stats") || normalized.includes("how many") || normalized.includes("total")) {
         aiText = "FleetForce Overview Statistics:\n" +
-                 "• Total Active Machines: 127\n" +
-                 "• Currently Moving: 84\n" +
-                 "• Idling: 18\n" +
-                 "• Under Maintenance: 12\n" +
-                 "• Drivers On Duty: 82";
+          "• Total Active Machines: 127\n" +
+          "• Currently Moving: 84\n" +
+          "• Idling: 18\n" +
+          "• Under Maintenance: 12\n" +
+          "• Drivers On Duty: 82";
       }
       // 11. Catch-all: Politely explain limit of scope & redirect
       else {
@@ -433,20 +432,18 @@ export default function AIAssistantPage() {
             className={`flex items-start gap-3 ${msg.sender === "user" ? "flex-row-reverse" : ""}`}
           >
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                msg.sender === "user" ? "bg-dark text-primary" : "bg-primary text-dark"
-              }`}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${msg.sender === "user" ? "bg-dark text-primary" : "bg-primary text-dark"
+                }`}
             >
               {msg.sender === "user" ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
             </div>
 
             <div className={`max-w-xl space-y-2 ${msg.sender === "user" ? "text-right" : ""}`}>
               <div
-                className={`inline-block p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-line ${
-                  msg.sender === "user"
-                    ? "bg-dark text-white rounded-tr-none"
-                    : "bg-background border border-border text-dark rounded-tl-none shadow-card"
-                }`}
+                className={`inline-block p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-line ${msg.sender === "user"
+                  ? "bg-dark text-white rounded-tr-none"
+                  : "bg-background border border-border text-dark rounded-tl-none shadow-card"
+                  }`}
               >
                 <p>{msg.text}</p>
 
